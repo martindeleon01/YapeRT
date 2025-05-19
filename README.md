@@ -50,7 +50,7 @@ Kafka is used for asynchronous communication via two topics:
 The SendMessage service in the Transaction microservice picks up all the messages with topic transaction-validate or transaction-result stored in the table SentMessages that have status Pending or Failed and the retry is less than 5 times.
 
 ## How to run the project
-1. Build and Rund Docker Compose.
+1. Build and Run Docker Compose.
 
 From the root directory, run:
 
