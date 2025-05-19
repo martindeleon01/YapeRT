@@ -24,8 +24,8 @@ Includes:
 - TransactionsStatusUpdate: a background service that consumes transaction-result messages and updates the transaction status accordingly.
 
 AntiFraud Service
-Subscribes to the "transaction-validate" Kafka topic.
-Validates the transaction: If the amount is > 2000 or total daily amount by source or target account exceeds 20000, the transaction is Rejected.
+- Subscribes to the "transaction-validate" Kafka topic.
+- Validates the transaction: If the amount is > 2000 or total daily amount by source or target account exceeds 20000, the transaction is Rejected.
 
 Otherwise, it's Approved.
 
