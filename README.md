@@ -31,6 +31,9 @@ Otherwise, it's Approved.
 
 Persists the result (topic: "transaction-result") in the SentMessages table.
 Messages are picked up and sent to Kafka by the SendMessage service in the Transactions microservice.
+
+![alt text](https://raw.githubusercontent.com/martindeleon01/YapeRT/refs/heads/main/Diagram.jpg)
+
 ## Database
 
 A shared PostgreSQL database: YapeDB
