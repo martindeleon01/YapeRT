@@ -1,0 +1,23 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+CREATE TABLE "Transactions" (
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "SourceAccountId" UUID NOT NULL,
+    "TargetAccountId" UUID NOT NULL,
+    "Value" NUMERIC(18, 2) NOT NULL,
+    "TransferTypeId" INTEGER NOT NULL,
+    "Status" INTEGER NOT NULL DEFAULT 1,
+    "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "UpdatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE "SentMessages" (
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "Topic" VARCHAR(50) NOT NULL,
+    "Payload" TEXT NOT NULL,
+    "CreatedAt" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    "ProcessedAt" TIMESTAMP WITHOUT TIME ZONE,
+    "Error" TEXT,
+    "RetryCount" INTEGER NOT NULL DEFAULT 0,
+    "Status" INTEGER NOT NULL DEFAULT 1
+);
