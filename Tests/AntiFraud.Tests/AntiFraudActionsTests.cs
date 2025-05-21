@@ -7,12 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace AntiFraud.Tests
 {
@@ -153,6 +148,74 @@ namespace AntiFraud.Tests
             Assert.NotNull(sentMessage);
             var result = JsonSerializer.Deserialize<TransactionResultDTO>(sentMessage.Payload);
             Assert.Equal(TransactionStatus.Rejected, result.Status);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ApprovesTransaction_WhenValueNotExceedsLimit()
+        {
+            // Arrange
+            var transaction = new Transaction
+            {
+                Id = Guid.NewGuid(),
+                SourceAccountId = Guid.NewGuid(),
+                TargetAccountId = Guid.NewGuid(),
+                Value = 2000,
+                CreatedAt = DateTime.UtcNow,
+                Status = TransactionStatus.Pending
+            };
+
+            var dbContext = GetInMemoryDbContext();
+            var backgroundService = GetTestableService(dbContext, transaction);
+
+            // Act
+            await backgroundService.StartAsync(CancellationToken.None);
+
+            // Assert
+            var sentMessage = dbContext.SentMessages.FirstOrDefault();
+            Assert.NotNull(sentMessage);
+            var result = JsonSerializer.Deserialize<TransactionResultDTO>(sentMessage.Payload);
+            Assert.Equal(TransactionStatus.Approved, result.Status);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_ApprovesTransaction_WhenDailyTotalNotExceeds20000()
+        {
+            // Arrange
+            var today = DateTime.UtcNow.Date;
+            var sourceId = Guid.NewGuid();
+
+            var dbContext = GetInMemoryDbContext();
+            dbContext.Transactions.Add(new Transaction
+            {
+                Id = Guid.NewGuid(),
+                SourceAccountId = sourceId,
+                TargetAccountId = Guid.NewGuid(),
+                Value = 19500,
+                CreatedAt = today,
+                Status = TransactionStatus.Approved
+            });
+            dbContext.SaveChanges();
+
+            var transaction = new Transaction
+            {
+                Id = Guid.NewGuid(),
+                SourceAccountId = sourceId,
+                TargetAccountId = Guid.NewGuid(),
+                Value = 500,
+                CreatedAt = today,
+                Status = TransactionStatus.Pending
+            };
+
+            var backgroundService = GetTestableService(dbContext, transaction);
+
+            // Act
+            await backgroundService.StartAsync(CancellationToken.None);
+
+            // Assert
+            var sentMessage = dbContext.SentMessages.FirstOrDefault();
+            Assert.NotNull(sentMessage);
+            var result = JsonSerializer.Deserialize<TransactionResultDTO>(sentMessage.Payload);
+            Assert.Equal(TransactionStatus.Approved, result.Status);
         }
 
         private TransactionsDbContext GetInMemoryDbContext()
