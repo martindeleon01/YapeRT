@@ -24,13 +24,16 @@ Includes:
 - TransactionsStatusUpdate: a background service that consumes transaction-result messages and updates the transaction status accordingly.
 
 AntiFraud Service
-Subscribes to the "transaction-validate" Kafka topic.
-Validates the transaction: If the amount is > 2000 or total daily amount by source or target account exceeds 20000, the transaction is Rejected.
+- Subscribes to the "transaction-validate" Kafka topic.
+- Validates the transaction: If the amount is > 2000 or total daily amount by source or target account exceeds 20000, the transaction is Rejected.
 
 Otherwise, it's Approved.
 
 Persists the result (topic: "transaction-result") in the SentMessages table.
 Messages are picked up and sent to Kafka by the SendMessage service in the Transactions microservice.
+
+![alt text](https://raw.githubusercontent.com/martindeleon01/YapeRT/refs/heads/main/Diagram.jpg)
+
 ## Database
 
 A shared PostgreSQL database: YapeDB
@@ -47,7 +50,7 @@ Kafka is used for asynchronous communication via two topics:
 The SendMessage service in the Transaction microservice picks up all the messages with topic transaction-validate or transaction-result stored in the table SentMessages that have status Pending or Failed and the retry is less than 5 times.
 
 ## How to run the project
-1. Build and Rund Docker Compose.
+1. Build and Run Docker Compose.
 
 From the root directory, run:
 
