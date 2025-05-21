@@ -1,7 +1,7 @@
 ﻿using Confluent.Kafka;
 using System.Text.Json;
 
-namespace AntiFraud.Services
+namespace AntiFraud.Infrastructure.Kafka
 {
     public class KafkaProducer : IKafkaProducer
     {

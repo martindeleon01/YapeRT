@@ -1,8 +1,9 @@
-﻿using AntiFraud.Actions;
-using AntiFraud.Services;
-using Common.Data;
-using Common.DTO;
-using Common.Models;
+﻿using AntiFraud.Application.DTOs;
+using AntiFraud.Application.HostedServices;
+using AntiFraud.Domain.Entities;
+using AntiFraud.Domain.Enums;
+using AntiFraud.Infrastructure.Data;
+using AntiFraud.Infrastructure.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

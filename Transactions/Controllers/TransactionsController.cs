@@ -1,11 +1,7 @@
-﻿using Common.Data;
-using Common.DTO;
-using Common.Models;
-using Confluent.Kafka;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using Transactions.Services;
+﻿using Microsoft.AspNetCore.Mvc;
+using Transactions.Application.DTOs;
+using Transactions.Application.Services;
+using Transactions.Domain.Entities;
 
 namespace Transactions.Controllers
 {
@@ -13,53 +9,24 @@ namespace Transactions.Controllers
     [Route("api/transactions")]
     public class TransactionsController : ControllerBase
     {
-        private readonly TransactionsDbContext _context;
-        private readonly IKafkaProducer _kafka;
+        private readonly ITransactionService _transactionService;
 
-        public TransactionsController(TransactionsDbContext context, IKafkaProducer kafka)
+        public TransactionsController(ITransactionService transactionService)
         {
-            _context = context;
-            _kafka = kafka;
+            _transactionService = transactionService;
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(TransactionDto dto)
         {
-            var topic = "transaction-validate";
-
-            var transaction = new Transaction
-            {
-                Id = Guid.NewGuid(),
-                SourceAccountId = dto.sourceAccountId,
-                TargetAccountId = dto.targetAccountId,
-                Value = dto.value,
-                TransferTypeId = 1,
-                Status = TransactionStatus.Pending,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            _context.Transactions.Add(transaction);
-
-            var sentMessage = new SentMessages
-            {
-                Topic = topic,
-                Payload = JsonSerializer.Serialize(transaction)
-            };
-
-            _context.SentMessages.Add(sentMessage);
-
-            await _context.SaveChangesAsync();
-
+            await _transactionService.CreateTransactionAsync(dto);
             return Accepted();
         }
 
         [HttpPost("retrieveTransaction")]
-        public async Task<Transaction> RetrieveTransaction(RetrieveTransactionDTO result)
+        public async Task<Transaction?> RetrieveTransaction(RetrieveTransactionDTO dto)
         {
-            var transaction = await _context.Transactions.Where(t => t.Id == result.transactionExternalId && t.CreatedAt.Date == result.createdAt.Date).FirstOrDefaultAsync();
-            return transaction ?? new Transaction { };
+            return await _transactionService.RetrieveTransactionAsync(dto.TransactionExternalId, dto.CreatedAt);
         }
-
     }
 }

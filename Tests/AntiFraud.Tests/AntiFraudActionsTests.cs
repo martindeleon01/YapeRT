@@ -1,7 +1,8 @@
-﻿using AntiFraud.Services;
-using Common.Data;
-using Common.DTO;
-using Common.Models;
+﻿using AntiFraud.Application.DTOs;
+using AntiFraud.Domain.Entities;
+using AntiFraud.Domain.Enums;
+using AntiFraud.Infrastructure.Data;
+using AntiFraud.Infrastructure.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -124,7 +125,7 @@ namespace AntiFraud.Tests
             var sentMessage = dbContext.SentMessages.FirstOrDefault();
             Assert.NotNull(sentMessage);
             var result = JsonSerializer.Deserialize<TransactionResultDTO>(sentMessage.Payload);
-            Assert.Equal(TransactionStatus.Rejected, result.status);
+            Assert.Equal(TransactionStatus.Rejected, result.Status);
         }
 
         [Fact]
@@ -151,7 +152,7 @@ namespace AntiFraud.Tests
             var sentMessage = dbContext.SentMessages.FirstOrDefault();
             Assert.NotNull(sentMessage);
             var result = JsonSerializer.Deserialize<TransactionResultDTO>(sentMessage.Payload);
-            Assert.Equal(TransactionStatus.Rejected, result.status);
+            Assert.Equal(TransactionStatus.Rejected, result.Status);
         }
 
         private TransactionsDbContext GetInMemoryDbContext()

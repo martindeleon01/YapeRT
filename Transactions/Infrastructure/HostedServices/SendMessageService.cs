@@ -1,9 +1,9 @@
-﻿using Common.Data;
+﻿using Common.Models;
 using Microsoft.EntityFrameworkCore;
-using Transactions.Services;
-using Common.Models;
+using Transactions.Infrastructure.Data;
+using Transactions.Infrastructure.Kafka;
 
-namespace Transactions.Updates
+namespace Transactions.Infrastructure.HostedServices
 {
     public class SendMessageService : BackgroundService
     {
@@ -30,37 +30,35 @@ namespace Transactions.Updates
                     var messages = await db.SentMessages
                         .Where(m => m.Status == MessageStatus.Pending || (m.Status == MessageStatus.Failed && m.RetryCount < 5))
                         .OrderBy(m => m.CreatedAt)
-                        .Take(20)
+                        .Take(10)
                         .ToListAsync(cancelToken);
 
-                    foreach (var m in messages)
+                    foreach (var message in messages)
                     {
                         try
                         {
-                            await _kafka.SendRawAsync(m.Topic, m.Payload);
-
-                            m.Status = MessageStatus.Sent;
-                            m.ProcessedAt = DateTime.UtcNow;
-                            m.Error = null;
+                            await _kafka.SendRawAsync(message.Topic, message.Payload);
+                            message.Status = MessageStatus.Sent;
+                            message.ProcessedAt = DateTime.UtcNow;
+                            _logger.LogInformation($"Sent message {message.Id} to topic {message.Topic}");
                         }
                         catch (Exception ex)
                         {
-                            m.RetryCount += 1;
-                            m.Status = MessageStatus.Failed;
-                            m.Error = ex.Message;
-
-                            _logger.LogWarning($"Failed to send message {m.Id}: {ex.Message}");
+                            message.Status = MessageStatus.Failed;
+                            message.Error = ex.Message;
+                            message.RetryCount++;
+                            _logger.LogWarning($"Failed to send message {message.Id}: {ex.Message}");
                         }
-
-                        await db.SaveChangesAsync(cancelToken);
                     }
+
+                    await db.SaveChangesAsync(cancelToken);
+                    await Task.Delay(1000, cancelToken);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error sending messages.");
+                    _logger.LogError($"SendMessageService error: {ex.Message}");
+                    await Task.Delay(3000, cancelToken);
                 }
-
-                await Task.Delay(TimeSpan.FromSeconds(5), cancelToken);
             }
         }
     }

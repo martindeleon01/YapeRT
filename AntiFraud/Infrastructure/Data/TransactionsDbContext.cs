@@ -1,12 +1,13 @@
-﻿using Common.Models;
+﻿using AntiFraud.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Common.Data
+namespace AntiFraud.Infrastructure.Data
 {
     public class TransactionsDbContext : DbContext
     {
         public TransactionsDbContext(DbContextOptions<TransactionsDbContext> options) : base(options) { }
-        public DbSet<Transaction> Transactions => Set<Transaction>();
-        public DbSet<SentMessages> SentMessages => Set<SentMessages>();
+
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<SentMessages> SentMessages { get; set; }
     }
 }

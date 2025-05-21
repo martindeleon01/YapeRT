@@ -1,6 +1,6 @@
-using AntiFraud.Actions;
-using AntiFraud.Services;
-using Common.Data;
+using AntiFraud.Application.HostedServices;
+using AntiFraud.Infrastructure.Data;
+using AntiFraud.Infrastructure.Kafka;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

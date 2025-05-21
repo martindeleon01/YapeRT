@@ -1,12 +1,13 @@
-﻿using AntiFraud.Services;
-using Common.Data;
-using Common.DTO;
-using Common.Models;
+﻿using AntiFraud.Application.DTOs;
+using AntiFraud.Domain.Entities;
+using AntiFraud.Domain.Enums;
+using AntiFraud.Infrastructure.Data;
+using AntiFraud.Infrastructure.Kafka;
 using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
-namespace AntiFraud.Actions
+namespace AntiFraud.Application.HostedServices
 {
     public class AntiFraudActions : BackgroundService
     {
@@ -65,7 +66,7 @@ namespace AntiFraud.Actions
                         .Where(t => t.TargetAccountId == dto.TargetAccountId && t.CreatedAt.Date == dto.CreatedAt.Date && t.Status == TransactionStatus.Approved)
                         .SumAsync(t => t.Value,cancellationToken: cancelToken);
 
-                    var status = (dto.Value > 2000 || ((totalSourceAcc + dto.Value > 20000) || (totalTargetAcc + dto.Value > 20000)) ? TransactionStatus.Rejected : TransactionStatus.Approved);
+                    var status = dto.Value > 2000 || totalSourceAcc + dto.Value > 20000 || totalTargetAcc + dto.Value > 20000 ? TransactionStatus.Rejected : TransactionStatus.Approved;
 
                     var result = new TransactionResultDTO(dto.Id, DateTime.UtcNow, status);
 

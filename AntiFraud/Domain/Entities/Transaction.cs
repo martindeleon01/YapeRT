@@ -1,8 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using AntiFraud.Domain.Enums;
 
-namespace Common.Models
+namespace AntiFraud.Domain.Entities
 {
-    [Table("Transactions")]
     public class Transaction
     {
         public Guid Id { get; set; }
@@ -13,12 +12,5 @@ namespace Common.Models
         public TransactionStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-    }
-
-    public enum TransactionStatus
-    {
-        Pending = 1,
-        Approved = 2,
-        Rejected = 3
     }
 }

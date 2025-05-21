@@ -1,7 +1,7 @@
-﻿using Confluent.Kafka;
-using System.Text.Json;
+﻿using System.Text.Json;
+using Confluent.Kafka;
 
-namespace Transactions.Services
+namespace Transactions.Infrastructure.Kafka
 {
     public class KafkaProducer : IKafkaProducer
     {

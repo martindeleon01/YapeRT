@@ -3,14 +3,14 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copiar los archivos de proyecto necesarios
-COPY Common/Common.csproj Common/
+#COPY Common/Common.csproj Common/
 COPY AntiFraud/AntiFraud.csproj AntiFraud/
 
 # Restaurar dependencias
 RUN dotnet restore AntiFraud/AntiFraud.csproj
 
 # Copiar solo el código fuente necesario
-COPY Common/ Common/
+#COPY Common/ Common/
 COPY AntiFraud/ AntiFraud/
 
 # Compilar el proyecto

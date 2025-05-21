@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Transactions.Services;
-using Common.Data;
-using Transactions.Updates;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using Transactions.Infrastructure.Kafka;
+using Transactions.Infrastructure.HostedServices;
+using Transactions.Application.Services;
+using Transactions.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<TransactionsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddSingleton<IKafkaProducer, KafkaProducer>();
 builder.Services.AddHostedService<TransactionsStatusUpdate>();
 builder.Services.AddHostedService<SendMessageService>();
